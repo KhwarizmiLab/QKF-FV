@@ -1,8 +1,10 @@
-# QVerify Proof Generation
+# QVerify — Proof Generation for QKD Protocol Verification
 
-This repository contains the Tamarin models and scripts used to produce the verification results for our experiments.  The models are constructed from smaller building blocks and the provided tools automate the generation of all protocol variants and their proofs.
+**Artifacts for:** *Beyond the Quantum Promise: A Security Analysis of Classical Control in Quantum Key Distribution*
 
-## Repository layout
+This repository contains the Tamarin Prover models and tooling used to produce all verification results reported in the paper. Models are assembled from modular, reusable fragments covering entanglement-based (EB) and prepare-and-measure (PM) protocol variants, multiple error-correction schemes, and different basis-announcement orderings. The provided scripts automate the full pipeline — from model assembly to proof generation and result collection.
+
+## Repository Layout
 
 ```
 .
