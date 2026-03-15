@@ -1,0 +1,17 @@
+services:
+  tamarin:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /workspace
+    # Bind-mount the HOST's ./_output/ directory to /workspace/output inside
+    # the container so all generated .spthy, .proof files and the HTML report
+    # are written directly to your local machine.
+    volumes:
+      - ./_output:/workspace/output
+    # Expose port 3001 for interactive mode (make docker-web, make docker-web-proofs)
+    ports:
+      - "3001:3001"
+    # No entrypoint – pass the make target as the command, e.g.:
+    #   docker compose run --rm tamarin make gen_proofs

@@ -1,0 +1,53 @@
+#!/bin/sh
+
+# Define variables
+TAMARIN=./tools/tamarin-prover
+TAMARIN_FLAGS=
+
+# Prove file function
+prove_file() {
+    file="$1"
+    proof_file=$(echo "$file" | sed 's/\.spthy$/.proof/')
+    tmp_file=$(echo "$file" | sed 's/\.spthy$/.tmp/')
+
+    # Skip if proof already exists
+    if [ -f "$proof_file" ]; then
+        echo "Proof file already exists, continuing with other operations..."
+        return 0
+    fi
+
+    # Print date and time for monitoring
+    echo "Analysis started on $(date '+%Y-%m-%d at %H:%M:%S') for file: ${file}"
+
+    # Run Tamarin
+    CMD="$TAMARIN --prove --derivcheck-timeout=0 -c=100 ${file} $TAMARIN_FLAGS --output=${proof_file}"
+    echo "$CMD"
+    eval "$CMD" >"$tmp_file" 2>&1
+
+    echo "Appending results from $tmp_file to $proof_file..."
+    sed -n "/^==============================================================================/,\$p" "$tmp_file" >>"$proof_file"
+    echo >>"$proof_file"
+    echo >>"$proof_file"
+
+    # Keep full output for inspection, remove .tmp
+    full_output=$(echo "$file" | sed 's/\.spthy$/.full_output/')
+    mv "$tmp_file" "$full_output"
+    echo "Prove completed for file: ${file}."
+    return 0
+}
+
+# Main logic
+if [ ! -d "./output" ]; then
+    echo "Directory './output/' not found!"
+    exit 1
+fi
+
+FILES=$(find ./output -name "*.spthy" | sort -r)
+if [ -z "$FILES" ]; then
+    echo "No .spthy files found in './output/' directory."
+    exit 0
+fi
+
+for file in $FILES; do
+    prove_file "$file"
+done

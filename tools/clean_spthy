@@ -1,0 +1,31 @@
+#!/usr/bin/python3
+import argparse
+
+keywords = ['rule', 'lemma', 'restriction', 'builtins','functions', 'begin', 'equations']
+
+def process_file(input_file_path, output_file_path):
+    with open(input_file_path, 'r') as infile:
+        lines = infile.readlines()
+
+    processed_lines = []
+    for line in lines:
+        stripped_line = line.strip()
+        # Skip lines starting with '//' and empty lines
+        if stripped_line.startswith('//') or not stripped_line:
+            continue
+        for keyword in keywords:
+            if stripped_line.startswith(keyword):
+                processed_lines.append('\n' + line)
+                break
+        else:
+            processed_lines.append(line)
+
+    # Write the processed lines to the output file
+    with open(output_file_path, 'w') as outfile:
+        outfile.writelines(processed_lines)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Process a file to remove lines starting with '//' and empty lines, and add a newline before lines starting with 'rule'.")
+    parser.add_argument('input_file', type=str, help='Path to the input file')
+    args = parser.parse_args()
+    process_file(args.input_file, args.input_file)

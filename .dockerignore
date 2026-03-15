@@ -1,0 +1,25 @@
+# Host output directories – never bake into the image
+_output/
+output/
+
+# Generated Tamarin artefacts
+*.spthy
+*.proof
+*.tmp
+run.log
+
+# HTML report (regenerated each run)
+generated_results.html
+generated_*.html
+
+# macOS noise
+.DS_Store
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Git metadata
+.git/
+.gitignore

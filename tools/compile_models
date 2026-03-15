@@ -1,0 +1,113 @@
+#!/usr/bin/python3
+
+import os
+
+keywords = ['rule', 'lemma', 'restriction', 'builtins', 'functions', 'begin', 'equations']
+
+
+def process_file(text):
+    lines=text.split("\n")
+    processed_lines = []
+    for line in lines:
+        stripped_line = line.strip()
+        # Skip lines starting with '//' and empty lines
+        if stripped_line.startswith('//') or not stripped_line:
+            continue
+        for keyword in keywords:
+            if stripped_line.startswith(keyword):
+                processed_lines.append('\n' + line)
+                break
+        else:
+            processed_lines.append(line)
+
+    return "\n".join(processed_lines)
+
+
+template = """
+theory {Model}_protocol
+begin
+{primitives}
+{restrictions}
+{basis_ann_order}
+{Adv_model}
+{Alice}
+{Bob}
+{ER}
+{lemmas}
+end
+"""
+
+# Define the lists for each part of the combination
+Types = ["PM", "EB"]
+Advassumpts = ["Adv_Network", "Adv_MaliciousUser"]
+# Advassumpts = ["Adv_MaliciousUser"]
+# Advassumpts = ["Adv_Network"]
+BasisAnnOrders = ["PostM", "SeqA", "SeqB"]
+ErrorCorrCodes = ["FEC", "REC", "TWEC"]
+
+# Types = ["PM"]
+# Advassumpts = ["Adv_Network"]
+# BasisAnnOrders = ["SeqA"]
+# ErrorCorrCodes = ["FEC"]
+
+
+
+def render_template(Type,BasisAnnOrder,Adv,ErrorCorr,include_lemmas=['e','s','a']):
+    Model=f"{Type}_{Adv}_{BasisAnnOrder}_{ErrorCorr}"
+    primitives=open(f"generic_models/{Type}/primitives.spthy").read()
+    restrictions=open("generic_models/common/restrictions.spthy").read()
+    basis_ann_order=open(f"generic_models/common/Basis_order/{BasisAnnOrder}.spthy").read()
+    Adv_model=open(f"generic_models/{Type}/{Adv}.spthy").read()
+    Alice=open(f"generic_models/{Type}/Alice.spthy").read()
+    Bob=open(f"generic_models/{Type}/Bob.spthy").read()
+    ER=open(f"generic_models/common/ER/{ErrorCorr}.spthy").read()
+
+    lemmas=""
+    if 'e' in include_lemmas:
+      lemmas_exec=open("generic_models/lemmas/exec.spthy").read()
+      lemmas+=lemmas_exec+"\n"
+    
+    if 's' in include_lemmas:
+      lemmas_secrecy=open("generic_models/lemmas/lemmas_secrecy.spthy").read()
+      lemmas+=lemmas_secrecy+"\n"
+    
+    if 'a' in include_lemmas:
+      lemmas_auth=open("generic_models/lemmas/lemmas_auth.spthy").read()
+      lemmas+=lemmas_auth+"\n"
+
+
+    return template.format(
+                    Model=Model,
+                    primitives=primitives,
+                    restrictions=restrictions,
+                    basis_ann_order=basis_ann_order,
+                    Adv_model=Adv_model,
+                    Alice=Alice,
+                    Bob=Bob,
+                    ER=ER,
+                    lemmas=lemmas,
+                    ) 
+                    
+
+
+
+if __name__ == "__main__":
+    os.makedirs("./output", exist_ok=True)
+    for Type in Types:
+        for Adv in Advassumpts:
+            if(Type=="EB"):
+                BasisAnnOrders=["PostM"]
+            if(Type=="PM"):
+                BasisAnnOrders=["SeqA", "SeqB"]
+            for BasisAnnOrder in BasisAnnOrders:
+                for ErrorCorr in ErrorCorrCodes:
+                    text=process_file(render_template(Type,BasisAnnOrder,Adv,ErrorCorr))
+                    # Write the processed lines to the output file
+                    with open(f"./output/{Type}_{Adv}_{BasisAnnOrder}_{ErrorCorr}.spthy", 'w') as outfile:
+                        outfile.writelines(text)
+
+
+
+
+
+

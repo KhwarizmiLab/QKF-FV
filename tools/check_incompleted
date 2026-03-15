@@ -1,0 +1,42 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+def move_completed_proofs(directory):
+    # Ensure the directory exists
+    if not os.path.isdir(directory):
+        print(f"Error: The directory '{directory}' does not exist.")
+        return
+
+    # Ensure the target directory exists
+    completed_dir = os.path.join("./", 'completed_proofs')
+    os.makedirs(completed_dir, exist_ok=True)
+
+    # Iterate over files in the directory
+    for file in os.listdir(directory):
+        # Check if the file has the .spthy extension
+        if file.endswith('.spthy'):
+            base_name = os.path.splitext(file)[0]  # Get the base name without extension
+            proof_file = os.path.join(directory, f"{base_name}.proof")
+            tmp_file = os.path.join(directory, f"{base_name}.tmp")
+            
+            # Check if the corresponding .tmp file exists and remove it
+            if os.path.isfile(tmp_file):
+                os.remove(tmp_file)
+            # Check if the corresponding .proof file exists and is not empty
+            if os.path.isfile(proof_file):
+                if len(open(proof_file).read()) < 100:
+                    # Delete the empty .proof file
+                    os.remove(proof_file)
+                    print(f"Deleted empty .proof file: {proof_file}")
+                else:
+                    pass
+
+if __name__ == "__main__":
+    # Check if the user provided a directory path as an argument
+    if len(sys.argv) != 2:
+        print("Usage: python script.py <directory_path>")
+    else:
+        directory_path = sys.argv[1]
+        move_completed_proofs(directory_path)

@@ -1,0 +1,13 @@
+#!/bin/sh
+# Convert all .proof_trace files in *_graphs/ dirs to PDF.
+# Run after gen_proofs (or after per-lemma extraction).
+set -e
+DOT=
+for t in ./output/*_graphs/*.proof_trace 2>/dev/null; do
+    [ -f "$t" ] || continue
+    pdf="${t%.proof_trace}.pdf"
+    [ -f "$pdf" ] && continue
+    echo "Converting $t -> $pdf"
+    python3 ./tools/trace_to_dot.py -o "$pdf" "$t" || true
+done
+echo "Done extracting counterexample graphs."

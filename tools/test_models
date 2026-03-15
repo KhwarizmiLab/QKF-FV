@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# Define variables
+TAMARIN=./tools/tamarin-prover
+TAMARIN_FLAGS=
+
+# Test function
+test() {
+    file="$1"
+    echo "Running test for file: ${file}..."
+    OUTPUT=$($TAMARIN $TAMARIN_FLAGS --quit-on-warning "${file}")
+    if [ $? -ne 0 ]; then
+        echo "${OUTPUT}"
+        echo "Test failed for file: ${file}. Skipping prove."
+        return 1
+    fi
+    echo "Test passed for file: ${file}."
+    return 0
+}
+
+# Main logic
+if [ ! -d "./output" ]; then
+    echo "Directory './output/' not found!"
+    exit 1
+fi
+
+FILES=$(find ./output -name "*.spthy")
+if [ -z "$FILES" ]; then
+    echo "No .spthy files found in './output/' directory."
+    exit 0
+fi
+
+for file in $FILES; do
+    test "$file"
+    if [ $? -ne 0 ]; then
+        echo "Exiting loop due to test failure."
+        break
+    fi    
+done
+echo "No issues detected in output files."
