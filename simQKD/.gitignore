@@ -1,0 +1,17 @@
+# Python and install artifacts
+*.egg-info/
+__pycache__/
+.venv/
+.venv_netsquid/
+.venvs/
+
+# ns-3 build (cloned by install_ns3.sh)
+ns-3-dev/
+
+# Credentials
+.env
+
+# Experiment outputs (regenerable)
+results/*.log
+results/*.json
+results/*.tex
